@@ -119,6 +119,10 @@ class MultiHeadAttention(nn.Module):
 
         x, self.attn_score = MultiHeadAttention.attention(query, key, value, mask, self.dropout)
 
-        
+
+
+        x = x.transpose(1,2).contiguous().view(x.shape[0], -1, self.h * self.d_k)
+
+        return seld.w_o(x)
 
         
