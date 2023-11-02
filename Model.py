@@ -31,7 +31,7 @@ class PositionalEncoding(nn.Module):
     def __init__(self, d_model: int, seq_len: int, dropout: float = 0.1) -> None:)
         super().__init__()
         self.d_model = d_model
-        sefl.seq_len = seq_len
+        self.seq_len = seq_len
         self.dropout = nn.Dropout(dropout)
     
         ## create a matrix of shape (seq_len, d_model)
@@ -62,11 +62,11 @@ class layerNormalization(nn.Module):
         std = x.std(dim=-1, keepdim=True) ## mean and std are the mean and std of the last dimension of the tensor
         return self.alpha * (x - mean) / (std + self.eps) + self.bias ## return the alpha times the x minus the mean divided by the std plus the bias   
 
-class feedfoward(nn.Module):
+class feedfowardblock(nn.Module):
     def __init__(self, d_model: int, d_ff: int, dropout: float) -> None:
         super().__init__()
         self.linear_1 = nn.Linear(d_model, d_ff) ## linear layer with d_model and d_ff, (W1) and bias (b1)
-        sefl.dropout = nn.Dropout(dropout) ## dropout layer
+        self.dropout = nn.Dropout(dropout) ## dropout layer
         self.linear_2 = nn.Linear(d_ff, d_model)  ## linear layer with d_ff and d_model, (W2) and bias (b2)
 
 
@@ -125,4 +125,42 @@ class MultiHeadAttention(nn.Module):
 
         return seld.w_o(x)
 
+
+class residualConnect(nn.module): ## add and norm ##
+    def __init__ (self, dropout: float) -> None:
+        super().__init__()
+        self.dropout == nn.Dropout(dropout)
+        self.norm = layerNormalization()
+
+    def forward(self, x, sublayer):
+        return x self.dropout(sublayer(self.norm(x)))    
         
+
+
+class EncoderBock(nn.module):
+
+    def __init__(self, self_attenion_block: MultiHeadAttention, feed_foward_block: feedfowardblock, dropout: flase) -> none:
+        super().__init__()
+        self.self_attenion_block = self_attenion_block
+        self.feed_foward_block = feed_foward_block
+        self.residualConnect = nn.modulelist([residualConnect(dropout) for _ in range(2)])
+
+    def forward(self, x, src_mask):
+        x = self.residualConnect[0](x, lambda x: self.self_attenion_block(x,x,x,src_mask))
+        x = self.residualConnect[1](x,self.feed_foward_block)
+        return x
+
+class Encoder(nn.module):
+    
+    def __init__(self, layers: nn.modulelist) -> None:
+        super().__init__()
+        self.layers = layers
+        self.norm = layerNormalization()
+
+    def forward(self, x, mask):
+        for layers in self.layers:
+            x = layer(x, mask)
+        return self.norm(x)
+
+
+
