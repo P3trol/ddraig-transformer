@@ -24,11 +24,11 @@ class InputEmbedding(nn.Module):
         self.embedding = nn.Embedding(vocab_size, d_model) ## embedding layer with vocab_size and d_model, embedding layer is a lookup table
 
 
-    def forward(self, x)
+    def forward(self, x):
         return self.embedding(x) * math.sqrt(self.d_model) ## return the embedding layer times the square root of the d_model
 
 class PositionalEncoding(nn.Module):
-    def __init__(self, d_model: int, seq_len: int, dropout: float = 0.1) -> None:)
+    def __init__(self, d_model: int, seq_len: int, dropout: float = 0.1) -> None:
         super().__init__()
         self.d_model = d_model
         self.seq_len = seq_len
@@ -77,7 +77,7 @@ class feedfowardblock(nn.Module):
 
 
 class MultiHeadAttention(nn.Module): 
-    def --init__(self, d_model: int, h: int, dropout: float) -> None:
+    def __init__(self, d_model: int, h: int, dropout: float) -> None:
         super().__init__()
         self.d_model = d_model
         self.h = h  
@@ -133,7 +133,7 @@ class residualConnect(nn.module): ## add and norm ##
         self.norm = layerNormalization()
 
     def forward(self, x, sublayer):
-        return x self.dropout(sublayer(self.norm(x)))    
+        return x + self.dropout(sublayer(self.norm(x)))    
         
 
 
@@ -163,4 +163,65 @@ class Encoder(nn.module):
         return self.norm(x)
 
 
+class DecoderBlock(nn.module):
+    
+    def __init__(sefl, self_attenion_block: MultiHeadAttention, cross_attenion_block: MultiHeadAttention, feed_foward_block: feedfowardblock, dropout: float) -> None:
+        super().__init__()
+        self.self_attenion_block = self_attenion_block
+        self.cross_attenion_block = cross_attenion_block
+        self.feed_foward_block = feed_foward_block
+        self.residualConnect = nn.modulelist([residualConnect(dropout) for _ in range(3)])
 
+    def forward(self, x, enc_out, src_mask, trg_mask):
+        x = self.residualConnect[0](x, lambda x: self.self_attenion_block(x,x,x,trg_mask))
+        x = self.residualConnect[1](x, lambda x: self.cross_attenion_block(x,enc_out,enc_out,src_mask))
+        x = self.residualConnect[2](x,self.feed_foward_block)
+        return x
+
+class Decoder(nn.module):
+    
+    def __init__(self, layers: nn.modulelist) -> None:
+        super().__init__()
+        self.layers = layers
+        self.norm = layerNormalization()
+
+    def forward(self, x, enc_out, src_mask, trg_mask):
+        for layers in self.layers:
+            x = layer(x, enc_out, src_mask, trg_mask)
+        return self.norm(x)
+
+class ProjectionLayer(nn.module): ## linear layer ##
+    def __init__(self, d_model: int, vocab_size: int) -> None:
+        super().__init__()
+        self.linear = nn.Linear(d_model, vocab_size)
+
+    def forward(self, x):
+        # (batch_size, seq_len, d_model) --> (batch_size, seq_len, vocab_size)
+        return torch.log_softmax(self.proj(x), dim=-1)
+
+class Transformer(nn.module): ## transformer model ## 
+
+    def __init__(self, encoder: Encoder, decoder: Decoder, src_embed: InputEmbedding, trg_embed: InputEmbedding, src_pos: PositionalEncoding, proj_layer: ProjectionLayer) -> None:
+        super().__init__()
+        self.encoder = encoder
+        self.decoder = decoder
+        self.src_embed = src_embed
+        self.trg_embed = trg_embed
+        self.trg_pos = trg_pos
+        self.src_pos = src_pos
+        self.proj_layer = proj_layer
+
+    def enocde(self, src, src_mask):
+        src = self.src_embed(src)
+        src = self.src_pos(src)
+        return self.encoder(src, src_mask)
+
+    def decode(self, trg, enc_out, src_mask, trg_mask): ## basically the forward pass
+        trg = self.trg_embed(trg)
+        trg = self.trg_pos(trg)
+        return self.decoder(trg, enc_out, src_mask, trg_mask)
+
+    def projection(self, x):
+        return self.proj_layer(x)
+        
+def build_transformer()  # edit this function to build your transformer model
