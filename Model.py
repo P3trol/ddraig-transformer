@@ -1,5 +1,5 @@
 import torch 
-import torch.nnw
+import torch.nn as nn
 import math
 
 ## d_model is the dimension of the model == 512
@@ -126,7 +126,7 @@ class MultiHeadAttention(nn.Module):
         return seld.w_o(x)
 
 
-class residualConnect(nn.module): ## add and norm ##
+class residualConnect(nn.Module): ## add and norm ##
     def __init__ (self, dropout: float) -> None:
         super().__init__()
         self.dropout == nn.Dropout(dropout)
@@ -137,9 +137,9 @@ class residualConnect(nn.module): ## add and norm ##
         
 
 
-class EncoderBock(nn.module):
+class EncoderBock(nn.Module):
 
-    def __init__(self, self_attenion_block: MultiHeadAttention, feed_foward_block: feedfowardblock, dropout: flase) -> none:
+    def __init__(self, self_attenion_block: MultiHeadAttention, feed_foward_block: feedfowardblock, dropout: False) -> None:
         super().__init__()
         self.self_attenion_block = self_attenion_block
         self.feed_foward_block = feed_foward_block
@@ -150,9 +150,9 @@ class EncoderBock(nn.module):
         x = self.residualConnect[1](x,self.feed_foward_block)
         return x
 
-class Encoder(nn.module):
+class Encoder(nn.Module):
     
-    def __init__(self, layers: nn.modulelist) -> None:
+    def __init__(self, layers: nn.ModuleList) -> None:
         super().__init__()
         self.layers = layers
         self.norm = layerNormalization()
@@ -163,7 +163,7 @@ class Encoder(nn.module):
         return self.norm(x)
 
 
-class DecoderBlock(nn.module):
+class DecoderBlock(nn.Module):
     
     def __init__(sefl, self_attenion_block: MultiHeadAttention, cross_attenion_block: MultiHeadAttention, feed_foward_block: feedfowardblock, dropout: float) -> None:
         super().__init__()
@@ -178,9 +178,9 @@ class DecoderBlock(nn.module):
         x = self.residualConnect[2](x,self.feed_foward_block)
         return x
 
-class Decoder(nn.module):
+class Decoder(nn.Module):
     
-    def __init__(self, layers: nn.modulelist) -> None:
+    def __init__(self, layers: nn.ModuleList) -> None:
         super().__init__()
         self.layers = layers
         self.norm = layerNormalization()
@@ -190,7 +190,7 @@ class Decoder(nn.module):
             x = layer(x, enc_out, src_mask, trg_mask)
         return self.norm(x)
 
-class ProjectionLayer(nn.module): ## linear layer ##
+class ProjectionLayer(nn.Module): ## linear layer ##
     def __init__(self, d_model: int, vocab_size: int) -> None:
         super().__init__()
         self.linear = nn.Linear(d_model, vocab_size)
@@ -199,7 +199,7 @@ class ProjectionLayer(nn.module): ## linear layer ##
         # (batch_size, seq_len, d_model) --> (batch_size, seq_len, vocab_size)
         return torch.log_softmax(self.proj(x), dim=-1)
 
-class Transformer(nn.module): ## transformer model ## 
+class Transformer(nn.Module): ## transformer model ## 
 
     def __init__(self, encoder: Encoder, decoder: Decoder, src_embed: InputEmbedding, trg_embed: InputEmbedding, src_pos: PositionalEncoding, proj_layer: ProjectionLayer) -> None:
         super().__init__()

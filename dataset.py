@@ -1,11 +1,13 @@
+from typing import Any, Dict, List, Optional, Tuple, Union
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset, random_split
 
 class EnglishToWelshDataset(Dataset):
 
-    def __init__(self, ds, tokenizer_src, tokenizer_trg, src_lang, trg_lang, seq_len):
+    def __init__(self, ds, tokenizer_src, tokenizer_trg, src_lang, trg_lang, seq_len) -> None:
         super().__init__()
+
         self.ds = ds
         self.tokenizer_src = tokenizer_src
         self.tokenizer_trg = tokenizer_trg
@@ -13,18 +15,18 @@ class EnglishToWelshDataset(Dataset):
         self.trg_lang = trg_lang
 
         #create the tensors for the special tokens
-        self.sos_token = torch.tensor([tokenizer_trg.token_to_id(['[SOS]'])], dtype=torch.int64)
-        self.eos_token = torch.tensor([tokenizer_trg.token_to_id(['[EOS]'])], dtype=torch.int64)
-        self.pad_token = torch.tensor([tokenizer_trg.token_to_id(['[PAD]'])], dtype=torch.int64)
+        self.sos_token = torch.Tensor([tokenizer_src.token_to_id(['[SOS]'])], dtype=torch.int64)
+        self.eos_token = torch.Tensor([tokenizer_src.token_to_id(['[EOS]'])], dtype=torch.int64)
+        self.pad_token = torch.Tensor([tokenizer_src.token_to_id(['[PAD]'])], dtype=torch.int64)
 
     def __len__(self): #return the length of the dataset
         return len(self.ds)
 
-    def __getitem__(self, idx: Any) -> Any:
+    def __getitem__(self, index:Any) -> Any:
         # Get the source and target sentences
-        src_target_pair = self.ds[idx]
-        src = src_target_pair['translation']['en']
-        trg = src_target_pair['translation']['cy']
+        src_target_pair = self.ds[index]
+        src = src_target_pair['translation'][self.src_lang]
+        trg = src_target_pair['translation'][self.trg_lang]
 
         # Encode the source and target sentences
         enc_input = self.tokenizer_src.encode(src).ids
