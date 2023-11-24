@@ -1,4 +1,5 @@
 # Ddraig Transformer into ddraig Summarizar
 
-[ ] Need to chnage the Transformer to fit the PolyAI project, try summerisaier code
-[ ] need to change the Train.py(tokenizer) to work with a diffrent dataset
+## Overview
+
+DDraig Transformer is an implementation of a Transformer model for translating English into Welsh, inspired by the "Attention is All You Need" paper. The model is trained using the OPUS Books dataset, and the implementation utilizes the Hugging Face Transformers library.
